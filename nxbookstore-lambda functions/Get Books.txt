@@ -1,0 +1,17 @@
+import boto3
+
+dynamodb = boto3.resource('dynamodb')
+table_name = 'NXBooks'  
+table = dynamodb.Table(table_name)
+
+def lambda_handler(event, context):
+    try:
+        response = table.scan()
+        items = response['Items']
+        return items
+    except Exception as e:
+        print(f'Error: {e}')
+        return {
+            'statusCode': 500,
+            'body': 'Internal Server Error'
+        }

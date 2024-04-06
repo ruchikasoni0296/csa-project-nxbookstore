@@ -1,0 +1,32 @@
+import json
+import boto3
+
+dynamodb_client = boto3.resource('dynamodb')
+table = dynamodb_client.Table('NXBooks')
+
+def lambda_handler(event, context):
+    try:
+        key = event.get('ID')
+        update_data1 = event.get('Name')
+        update_data2 = event.get('Author')
+        
+        if key is None or update_data1 is None or update_data2 is None:
+            raise ValueError("Key, Name, or Author is missing in the event")
+        
+        response = table.update_item(
+            Key={"ID": key},
+            UpdateExpression='SET #data = :update_data1, #data_2 = :update_data2',
+            ExpressionAttributeNames={'#data': 'Name', '#data_2': 'Author'},
+            ExpressionAttributeValues={':update_data1': update_data1, ':update_data2': update_data2},
+            ReturnValues='UPDATED_NEW'
+        )
+            
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Update operation successful')
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps(str(e))
+        }

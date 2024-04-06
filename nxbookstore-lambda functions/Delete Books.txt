@@ -1,0 +1,21 @@
+import json
+import boto3
+
+dynamodb_client = boto3.resource('dynamodb')
+table = dynamodb_client.Table('NXBooks')
+
+def lambda_handler(event, context):
+    try:
+        key = event['ID']
+        if key is None:
+            raise ValueError("Key is missing in the event")
+        response = table.delete_item(Key={"ID":key})
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Delete operation successful')
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps(str(e))
+        }
